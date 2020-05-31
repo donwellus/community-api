@@ -43,6 +43,15 @@ func getTopicList() []Topic {
 	return sampleTopics
 }
 
+func getTopic(code string) *Topic {
+	for _, t := range sampleTopics {
+		if t.Code == code {
+			return &t
+		}
+	}
+	return nil
+}
+
 // New returns a new Community API GraphQL Schema
 func New() (graphql.Schema, error) {
 	fields := graphql.Fields{
