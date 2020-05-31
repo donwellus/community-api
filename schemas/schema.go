@@ -62,6 +62,22 @@ func New() (graphql.Schema, error) {
 				return getTopicList(), nil
 			},
 		},
+		"topic": &graphql.Field{
+			Type:        topicType,
+			Description: "Get a topic by code",
+			Args: graphql.FieldConfigArgument{
+				"code": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				code, ok := p.Args["code"].(string)
+				if ok {
+					return getTopic(code), nil
+				}
+				return nil, nil //TODO: return error
+			},
+		},
 	}
 	queryType := graphql.NewObject(graphql.ObjectConfig{Name: "Query", Fields: fields})
 
