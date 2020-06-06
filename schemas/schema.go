@@ -1,29 +1,11 @@
 package schemas
 
 import (
+	"community-api/repositories"
+	"community-api/services/topic"
+
 	"github.com/graphql-go/graphql"
 )
-
-// Topic contains information about one topic
-type Topic struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
-}
-
-var sampleTopics = []Topic{
-	{
-		Code: "xpto",
-		Name: "XPTO",
-	},
-	{
-		Code: "otpx",
-		Name: "OTPX",
-	},
-	{
-		Code: "internet_speed",
-		Name: "Internet Speed",
-	},
-}
 
 var topicType = graphql.NewObject(
 	graphql.ObjectConfig{
@@ -39,18 +21,7 @@ var topicType = graphql.NewObject(
 	},
 )
 
-func getTopicList() []Topic {
-	return sampleTopics
-}
-
-func getTopic(code string) *Topic {
-	for _, t := range sampleTopics {
-		if t.Code == code {
-			return &t
-		}
-	}
-	return nil
-}
+var topicRepository = topic.NewTopicInMemoryRepository()
 
 // New returns a new Community API GraphQL Schema
 func New() (graphql.Schema, error) {
@@ -59,7 +30,7 @@ func New() (graphql.Schema, error) {
 			Type:        graphql.NewList(topicType),
 			Description: "Get topic list",
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return getTopicList(), nil
+				return topicRepository.List(), nil
 			},
 		},
 		"topic": &graphql.Field{
@@ -71,9 +42,10 @@ func New() (graphql.Schema, error) {
 				},
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				code, ok := p.Args["code"].(string)
+				codeString, ok := p.Args["code"].(string)
 				if ok {
-					return getTopic(code), nil
+					code := repositories.TopicCode(codeString)
+					return topicRepository.Get(code)
 				}
 				return nil, nil //TODO: return error
 			},
