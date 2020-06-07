@@ -2,6 +2,7 @@ package topic
 
 import (
 	"community-api/repositories"
+	"fmt"
 	"sync"
 )
 
@@ -49,7 +50,7 @@ func (r InMemory) Get(code repositories.TopicCode) (*repositories.Topic, error) 
 	r.mux.RUnlock()
 
 	if !ok {
-		return nil, nil //TODO: return error
+		return nil, fmt.Errorf("Topic not found") //TODO: improve error
 	}
 
 	return &found, nil
