@@ -13,4 +13,5 @@ type Topic struct {
 type TopicRepository interface {
 	List() []Topic
 	Get(code TopicCode) (Topic, error)
+	Create(code TopicCode, name string) (Topic, error)
 }
