@@ -55,3 +55,24 @@ func (r InMemory) Get(code repositories.TopicCode) (*repositories.Topic, error) 
 
 	return &found, nil
 }
+
+// Create a Topic
+func (r InMemory) Create(code repositories.TopicCode, name string) (*repositories.Topic, error) {
+	_, err := r.Get(code)
+
+	if err == nil {
+		return nil, fmt.Errorf("Topic already exists") //TODO: improve error
+	}
+
+	topic := repositories.Topic{
+		Code: code,
+		Name: name,
+	}
+
+	fmt.Printf("%v", topic)
+	r.mux.Lock()
+	r.data[code] = topic
+	r.mux.Unlock()
+
+	return &topic, nil
+}
