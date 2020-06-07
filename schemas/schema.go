@@ -25,7 +25,7 @@ var topicRepository = topic.NewTopicInMemoryRepository()
 
 // New returns a new Community API GraphQL Schema
 func New() (graphql.Schema, error) {
-	fields := graphql.Fields{
+	queryFields := graphql.Fields{
 		"topics": &graphql.Field{
 			Type:        graphql.NewList(topicType),
 			Description: "Get topic list",
@@ -82,7 +82,7 @@ func New() (graphql.Schema, error) {
 		},
 	}
 
-	queryType := graphql.NewObject(graphql.ObjectConfig{Name: "Query", Fields: fields})
+	queryType := graphql.NewObject(graphql.ObjectConfig{Name: "Query", Fields: queryFields})
 	mutationType := graphql.NewObject(graphql.ObjectConfig{Name: "Mutation", Fields: mutationFields})
 
 	return graphql.NewSchema(graphql.SchemaConfig{Query: queryType, Mutation: mutationType})
