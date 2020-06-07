@@ -69,7 +69,6 @@ func (r InMemory) Create(code repositories.TopicCode, name string) (*repositorie
 		Name: name,
 	}
 
-	fmt.Printf("%v", topic)
 	r.mux.Lock()
 	r.data[code] = topic
 	r.mux.Unlock()
