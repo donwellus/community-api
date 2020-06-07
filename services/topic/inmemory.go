@@ -8,7 +8,7 @@ import (
 // InMemory represents a memory service for Topics
 type InMemory struct {
 	data map[repositories.TopicCode]repositories.Topic
-	s    sync.RWMutex
+	mux  sync.RWMutex
 }
 
 // NewTopicInMemoryRepository instantiate a new Repository for Topic
@@ -33,8 +33,8 @@ func NewTopicInMemoryRepository() *InMemory {
 
 // List all Topics
 func (r InMemory) List() (list []repositories.Topic) {
-	r.s.RLock()
-	defer r.s.RUnlock()
+	r.mux.RLock()
+	defer r.mux.RUnlock()
 
 	for _, t := range r.data {
 		list = append(list, t)
@@ -44,10 +44,9 @@ func (r InMemory) List() (list []repositories.Topic) {
 
 // Get a Topic by code
 func (r InMemory) Get(code repositories.TopicCode) (*repositories.Topic, error) {
-	r.s.RLock()
-	defer r.s.RUnlock()
-
+	r.mux.RLock()
 	found, ok := r.data[code]
+	r.mux.RUnlock()
 
 	if !ok {
 		return nil, nil //TODO: return error
