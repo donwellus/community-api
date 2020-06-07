@@ -51,7 +51,39 @@ func New() (graphql.Schema, error) {
 			},
 		},
 	}
-	queryType := graphql.NewObject(graphql.ObjectConfig{Name: "Query", Fields: fields})
+	mutationFields := graphql.Fields{
+		"createTopic": &graphql.Field{
+			Type: topicType,
+			Args: graphql.FieldConfigArgument{
+				"code": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+				"name": &graphql.ArgumentConfig{
+					Type: graphql.NewNonNull(graphql.String),
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				codeString, codeOk := p.Args["code"].(string)
+				name, nameOk := p.Args["name"].(string)
+				if codeOk && nameOk {
+					code := repositories.TopicCode(codeString)
 
-	return graphql.NewSchema(graphql.SchemaConfig{Query: queryType})
+					topicChan := make(chan *repositories.Topic)
+
+					go func(topicChan chan *repositories.Topic) {
+						topic, _ := topicRepository.Create(code, name)
+						topicChan <- topic
+					}(topicChan)
+
+					return <-topicChan, nil
+				}
+				return nil, nil
+			},
+		},
+	}
+
+	queryType := graphql.NewObject(graphql.ObjectConfig{Name: "Query", Fields: fields})
+	mutationType := graphql.NewObject(graphql.ObjectConfig{Name: "Mutation", Fields: mutationFields})
+
+	return graphql.NewSchema(graphql.SchemaConfig{Query: queryType, Mutation: mutationType})
 }
